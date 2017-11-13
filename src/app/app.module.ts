@@ -1,3 +1,4 @@
+import { AnotherProductService } from './shared/another-product.service';
 import { ProductService } from './shared/product.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
@@ -16,7 +17,26 @@ import { LoggerService } from "./shared/logger.service";
   imports: [
     BrowserModule
   ],
-  providers: [ProductService, LoggerService],
+  providers: [
+    {
+      provide: ProductService,
+      useFactory: (logger:LoggerService, appConfig, isDev) => {
+        if(appConfig.isDev && isDev){
+          return new ProductService(logger);
+        }else{
+          return new AnotherProductService(logger);
+        }
+      },
+      deps:[LoggerService, "APP_CONFIG", "IS_DEV"]
+    }, 
+  LoggerService,
+    {
+      provide: "APP_CONFIG", useValue: {isDev: true}
+    },
+    {
+      provide: "IS_DEV", useValue: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
